@@ -13,7 +13,8 @@ export enum MaterialType {
   PLA = 'PLA',
   ABS = 'ABS',
   PETG = 'PETG',
-  RESIN = 'Resin'
+  RESIN = 'Resin',
+  TPU = 'TPU'
 }
 
 export enum SizeOption {
@@ -51,6 +52,7 @@ export interface Product {
   featured?: boolean;
   popular?: boolean;
   category?: string;
+  supportedMaterials?: MaterialType[];
 }
 
 export interface CartItem {

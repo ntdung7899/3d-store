@@ -71,6 +71,17 @@ export default function ProductCard({ product, className }: ProductCardProps) {
                         {product.shortDescription}
                     </p>
 
+                    {/* Materials Tags */}
+                    {product.supportedMaterials && product.supportedMaterials.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mb-3">
+                            {product.supportedMaterials.map(mat => (
+                                <span key={mat} className="text-[10px] uppercase font-bold px-1.5 py-0.5 bg-muted text-muted-foreground rounded border border-border">
+                                    {mat}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
                     {/* Rating */}
                     <div className="flex items-center gap-2 mb-3 text-sm">
                         <div className="flex items-center">

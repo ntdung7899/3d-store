@@ -149,6 +149,26 @@ export default function ProductDetailPage() {
 
                 {/* Right Column - Product Info */}
                 <div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {hasFile && (
+                            <span className="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 border border-primary/20">
+                                <Download className="w-3 h-3" />
+                                FILE STL
+                            </span>
+                        )}
+                        {hasPrint && (
+                            <span className="bg-secondary/10 text-secondary text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1 border border-secondary/20">
+                                <Package className="w-3 h-3" />
+                                IN SẴN 3D
+                            </span>
+                        )}
+                        {product.category && (
+                            <span className="bg-muted text-muted-foreground text-xs font-bold px-3 py-1 rounded-full border border-border">
+                                {product.category.toUpperCase()}
+                            </span>
+                        )}
+                    </div>
+
                     <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
 
                     {/* Rating */}
@@ -175,6 +195,36 @@ export default function ProductDetailPage() {
                     <p className="text-muted-foreground mb-8 leading-relaxed">
                         {product.description}
                     </p>
+
+                    {/* Detailed Specs */}
+                    <div className="bg-muted/30 rounded-2xl p-6 mb-8 border border-border">
+                        <h3 className="font-bold mb-4 flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-primary" />
+                            Thông số kỹ thuật
+                        </h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                            <div className="flex justify-between border-b border-border/50 pb-2">
+                                <span className="text-muted-foreground">Phân loại:</span>
+                                <span className="font-medium">{product.category || 'N/A'}</span>
+                            </div>
+                            <div className="flex justify-between border-b border-border/50 pb-2">
+                                <span className="text-muted-foreground">Bản quyền:</span>
+                                <span className="font-medium">{product.license || 'Standard'}</span>
+                            </div>
+                            {product.supportedMaterials && (
+                                <div className="flex flex-col gap-2 col-span-1 sm:col-span-2 pt-2">
+                                    <span className="text-muted-foreground">Nhựa hỗ trợ:</span>
+                                    <div className="flex flex-wrap gap-2">
+                                        {product.supportedMaterials.map(mat => (
+                                            <span key={mat} className="px-2 py-0.5 bg-background border border-border rounded text-[10px] font-bold text-foreground">
+                                                {mat}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
                     {/* Tabs */}
                     <ProductTabs

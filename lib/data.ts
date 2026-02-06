@@ -5,6 +5,7 @@ export const materials: Material[] = [
     { id: 'abs', name: MaterialType.ABS, priceMultiplier: 1.2 },
     { id: 'petg', name: MaterialType.PETG, priceMultiplier: 1.3 },
     { id: 'resin', name: MaterialType.RESIN, priceMultiplier: 1.8 },
+    { id: 'tpu', name: MaterialType.TPU, priceMultiplier: 1.5 },
 ];
 
 export const colors: Color[] = [
@@ -38,6 +39,7 @@ export const products: Product[] = [
         featured: true,
         popular: true,
         category: 'Trang trí',
+        supportedMaterials: [MaterialType.PLA, MaterialType.ABS, MaterialType.RESIN],
     },
     {
         id: '2',
@@ -56,6 +58,7 @@ export const products: Product[] = [
         reviewCount: 89,
         featured: true,
         category: 'Tiện ích',
+        supportedMaterials: [MaterialType.PLA, MaterialType.ABS, MaterialType.PETG],
     },
     {
         id: '3',
@@ -74,6 +77,7 @@ export const products: Product[] = [
         reviewCount: 256,
         popular: true,
         category: 'Phụ kiện',
+        supportedMaterials: [MaterialType.PLA, MaterialType.TPU],
     },
     {
         id: '4',
