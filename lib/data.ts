@@ -232,3 +232,10 @@ export const products: Product[] = [
 export const getFeaturedProducts = () => products.filter(p => p.featured);
 export const getPopularProducts = () => products.filter(p => p.popular);
 export const getProductById = (id: string) => products.find(p => p.id === id);
+
+export const getRelatedProducts = (currentProduct: Product, limit: number = 4) => {
+    return products
+        .filter(p => p.id !== currentProduct.id && p.category === currentProduct.category)
+        .slice(0, limit);
+};
+

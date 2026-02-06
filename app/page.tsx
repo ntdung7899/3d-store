@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, Download, Sparkles, Truck, HeadphonesIcon, Shield } from 'lucide-react';
 import ProductCard from '@/components/ui/product-card';
+import BannerCarousel from '@/components/ui/banner-carousel';
 import { getFeaturedProducts, getPopularProducts } from '@/lib/data';
 
 export default function HomePage() {
@@ -15,7 +16,10 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
         <div className="absolute inset-0 bg-grid-pattern opacity-10" />
-
+        {/* Banner Carousel */}
+        <section className="bg-background py-10">
+          <BannerCarousel />
+        </section>
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 md:py-32">
           <div className="text-center">
             <motion.div
@@ -82,6 +86,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+
 
       {/* Featured Products */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">

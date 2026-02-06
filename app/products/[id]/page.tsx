@@ -3,13 +3,16 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Download, Package, FileText, ShoppingCart, ArrowLeft } from 'lucide-react';
+import { Download, Package, FileText, ShoppingCart, ArrowLeft, Loader2 } from 'lucide-react';
+import { useAnimate, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import ProductGallery from '@/components/ui/product-gallery';
 import ProductTabs from '@/components/ui/product-tabs';
 import MaterialSelector from '@/components/ui/material-selector';
 import ColorSelector from '@/components/ui/color-selector';
 import PriceBox from '@/components/ui/price-box';
-import { getProductById, materials, colors } from '@/lib/data';
+import ProductCard from '@/components/ui/product-card';
+import { getProductById, getRelatedProducts, materials, colors } from '@/lib/data';
 import { Product, ProductType, Material, Color, SizeOption } from '@/lib/types';
 import { calculatePrice, getSizeMultiplier, formatPrice } from '@/lib/utils';
 import { useCart } from '@/hooks/use-cart';
@@ -23,6 +26,11 @@ export default function ProductDetailPage() {
     const [selectedMaterial, setSelectedMaterial] = useState<Material>(materials[0]);
     const [selectedColor, setSelectedColor] = useState<Color>(colors[0]);
     const [selectedSize, setSelectedSize] = useState<SizeOption>(SizeOption.MEDIUM);
+    const [isFlying, setIsFlying] = useState(false);
+    const [flyingCoords, setFlyingCoords] = useState({ x: 0, y: 0 });
+    const [targetCoords, setTargetCoords] = useState({ x: 0, y: 0 });
+
+    const relatedProducts = product ? getRelatedProducts(product) : [];
 
     if (!product) {
         return (
@@ -51,7 +59,26 @@ export default function ProductDetailPage() {
         return calculatePrice(basePrice, selectedMaterial.priceMultiplier, sizeMultiplier);
     };
 
-    const handleAddToCart = (type: 'file' | 'print') => {
+    const handleAddToCart = (type: 'file' | 'print', e: React.MouseEvent) => {
+        // Calculate animation start position
+        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+
+        // Find cart icon position
+        const cartIcon = document.getElementById('header-cart-icon');
+        const cartRect = cartIcon?.getBoundingClientRect();
+
+        setFlyingCoords({
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2
+        });
+
+        setTargetCoords({
+            x: (cartRect?.left || window.innerWidth - 100) + (cartRect?.width || 0) / 2,
+            y: (cartRect?.top || 20) + (cartRect?.height || 0) / 2
+        });
+
+        setIsFlying(true);
+
         addItem({
             product,
             type,
@@ -63,12 +90,48 @@ export default function ProductDetailPage() {
             } : undefined,
         });
 
-        // Optional: Show toast notification
-        alert(`Đã thêm "${product.name}" vào giỏ hàng!`);
+        // Clear flying state after animation
+        setTimeout(() => setIsFlying(false), 800);
     };
 
     return (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 relative">
+            <AnimatePresence>
+                {isFlying && (
+                    <motion.div
+                        variants={{
+                            initial: {
+                                scale: 0.5,
+                                opacity: 0,
+                                position: 'fixed',
+                                left: flyingCoords.x - 64,
+                                top: flyingCoords.y - 64,
+                                zIndex: 100
+                            },
+                            animate: {
+                                scale: [0.5, 1.2, 0.1],
+                                opacity: [0, 1, 0],
+                                left: [flyingCoords.x - 64, flyingCoords.x - 64, targetCoords.x - 16],
+                                top: [flyingCoords.y - 64, flyingCoords.y - 64, targetCoords.y - 16]
+                            }
+                        }}
+                        initial="initial"
+                        animate="animate"
+                        transition={{ duration: 1, ease: "easeInOut" }}
+                        className="pointer-events-none"
+                    >
+                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden border-4 border-white shadow-[0_0_40px_rgba(99,102,241,0.6)] bg-white ring-2 ring-primary">
+                            <Image
+                                src={product.images[0]}
+                                alt="Flying item"
+                                fill
+                                className="object-cover"
+                            />
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             {/* Back Button */}
             <button
                 onClick={() => router.back()}
@@ -155,7 +218,7 @@ export default function ProductDetailPage() {
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
-                                            onClick={() => handleAddToCart('file')}
+                                            onClick={(e) => handleAddToCart('file', e)}
                                             className="w-full px-6 py-4 bg-primary text-primary-foreground rounded-xl font-semibold text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-smooth"
                                         >
                                             <Download className="w-5 h-5" />
@@ -197,7 +260,7 @@ export default function ProductDetailPage() {
                                         <motion.button
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
-                                            onClick={() => handleAddToCart('print')}
+                                            onClick={(e) => handleAddToCart('print', e)}
                                             className="w-full px-6 py-4 bg-secondary text-secondary-foreground rounded-xl font-semibold text-lg flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-smooth"
                                         >
                                             <ShoppingCart className="w-5 h-5" />
@@ -210,6 +273,26 @@ export default function ProductDetailPage() {
                     </ProductTabs>
                 </div>
             </div>
+
+            {/* Related Products Section */}
+            {relatedProducts.length > 0 && (
+                <div className="mt-20 border-t border-border pt-16">
+                    <h2 className="text-3xl font-bold mb-8">Sản phẩm liên quan</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {relatedProducts.map((p, index) => (
+                            <motion.div
+                                key={p.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: index * 0.1 }}
+                            >
+                                <ProductCard product={p} />
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
